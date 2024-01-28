@@ -1,0 +1,32 @@
+# This workflow will install Python dependencies, run tests and lint with a single version of Python
+# For more information see: https://docs.github.com/en/actions/automating-builds-and-tests/building-and-testing-python
+
+name: Python application
+
+on:
+  push:
+    branches: [ "dev_*" ]
+  pull_request:
+    branches: [ "main" ]
+
+permissions:
+  contents: read
+
+jobs:
+  run-test-serrver-code:
+    runs-on: ubuntu-latest
+    env:
+      working-directory: ./server
+    steps:
+    - uses: actions/checkout@v3
+    - uses: actions/setup-python@v3
+      with:
+        python-version: "3.9"
+    - name: set pythonpath
+      run: echo "PYTHONPATH= ${{ env.working-directory }}" >> $GITHUB_ENV
+    - name: install package
+      run: pip install -r server_pip_freeze.txt
+      working-directory: ${{ env.working-directory }}
+    - name: run test
+      run: python3 -m pytest ./app/tests/
+      working-directory: ${{ env.working-directory }}
