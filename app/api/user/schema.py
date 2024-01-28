@@ -24,3 +24,16 @@ class UserCreate(UserBase):
     """User 객체를 생성할 때 사용"""
     id: str
     pw: str
+
+
+class UserStatus(UserBase):
+    """User 객체의 상태 가져올 때 사용"""
+    id: str
+    deleted: bool
+
+
+class UserAllGet(UserBase):
+    """User 객체의 모든 값을 가져올 때 사용"""
+    id: str
+    pw: str
+    deleted: bool
