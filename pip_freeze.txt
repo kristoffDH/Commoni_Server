@@ -47,3 +47,4 @@ tomlkit==0.12.2
 typing_extensions==4.8.0
 ujson==5.8.0
 uvicorn==0.23.2
+alembic==1.13.1
