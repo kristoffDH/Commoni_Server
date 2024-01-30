@@ -51,6 +51,9 @@ class UserService:
             logger.error(f"[UserService] user[{user_id}] is not found")
             raise api_error.UserNotFound(user_id=user_id)
 
+        if user.deleted:
+            raise api_error.Unauthorized(f"[UserService] This user is deactivated")
+
         return UserAllGet(id=user.id, pw=user.pw, deleted=user.deleted)
 
     def get_status(self, user_id: str):
