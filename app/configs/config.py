@@ -13,12 +13,15 @@ class DatabaseConfig(BaseSettings):
 
 class AuthConfig(BaseSettings):
     """인증 관련 설정"""
+    URL: str = "/api/v1/auth/login"
     SECRET_KEY: str = "0548a115e749bd446115d6c05e95838b2f7b47568e110186e0fe81fca376e19d"
     ALGORITHM: str = "HS256"
-    URL: str = "/api/v1/auth/login"
-    ACCESS_TOKEN_EXPIRATION: int = 20  # minute
-    REFRESH_TOKEN_EXPIRATION: int = 15  # date
-    DATE_BEFORE_EXPIRATION: int = 2  # date
+
+
+class TokenExpiration(BaseSettings):
+    ACCESS: int = 20  # minute
+    REFRESH: int = 15  # date
+    CEHCK_BEFORE_DATE: int = 2  # date
 
 
 class RedisConfig(BaseSettings):
@@ -26,8 +29,10 @@ class RedisConfig(BaseSettings):
     REDIS_IP: str = "localhost"
     REDIS_PORT: int = 6379
     REDIS_DB_NUM: int = 0
+    CHARSET: str = "utf-8"
 
 
 db_config = DatabaseConfig()
 auth_config = AuthConfig()
-redis_confi = RedisConfig()
+token_config = TokenExpiration()
+redis_config = RedisConfig()
