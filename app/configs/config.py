@@ -19,9 +19,9 @@ class AuthConfig(BaseSettings):
 
 
 class TokenExpiration(BaseSettings):
-    ACCESS: int = 20  # minute
-    REFRESH: int = 15  # date
-    CEHCK_BEFORE_DATE: int = 2  # date
+    ACCESS: dict = {'minutes': 20}
+    REFRESH: dict = {'days': 15}
+    CEHCK_BEFORE_DATE: dict = {'days': 2}
 
 
 class RedisConfig(BaseSettings):
