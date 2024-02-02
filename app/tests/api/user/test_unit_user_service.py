@@ -201,3 +201,34 @@ class TestUserService:
 
         with pytest.raises(api_error.UserNotFound):
             UserService(db).delete(user_id=self.id)
+
+    def test_is_existed_1(self, mocker):
+        """
+        중복 유저 테스트 성공, 유저가 없는 경우
+        """
+        db = mocker.MagicMock()
+        mocker.patch('app.api.user.crud.UserCRUD.get', return_value=None)
+
+        result = UserService(db).is_existed(user_id=self.id)
+        assert result is False
+
+    def test_is_existed_2(self, mocker):
+        """
+        중복 유저 테스트 성공, 유저가 있는 경우
+        """
+        db = mocker.MagicMock()
+        mocker.patch('app.api.user.crud.UserCRUD.get', return_value=self.user_all_get_schema)
+
+        result = UserService(db).is_existed(user_id=self.id)
+        assert result is True
+
+    def test_is_existed_3(self, mocker):
+        """
+        중복 유저 테스트 에러 발생
+        """
+        db = mocker.MagicMock()
+        mocker.patch('app.api.user.crud.UserCRUD.get', return_value=self.user_all_get_schema) \
+            .side_effect = UserCrudError
+
+        with pytest.raises(api_error.ServerError):
+            UserService(db).is_existed(user_id=self.id)

@@ -118,3 +118,20 @@ class UserService:
         except UserCrudError:
             logger.error(f"[UserService] UserCRUD delete error")
             raise api_error.ServerError(f"[UserService] UserCRUD error")
+
+    def is_existed(self, user_id: str) -> bool:
+        """
+        User id 중복 체크
+        :param user_id: 중복 확인할 사용자 아이디
+        :return: bool
+        """
+        try:
+            result = UserCRUD(self.db).get(user=UserGet(id=user_id))
+        except UserCrudError:
+            logger.error(f"[UserService] UserCRUD get error")
+            raise api_error.ServerError(f"[UserService] UserCRUD error")
+
+        if result:
+            return True
+        else:
+            return False
