@@ -2,10 +2,8 @@ import functools
 
 from fastapi import Request
 from fastapi.responses import JSONResponse
-from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.exception.api_error import ApiErrorBase
-from app.configs.log import logger
 
 
 def base_exception_handler(_: Request, exc: ApiErrorBase):
@@ -14,16 +12,15 @@ def base_exception_handler(_: Request, exc: ApiErrorBase):
                         content=exc.make_content())
 
 
-def alchemy_error_handler(err_label, err_class):
+def error_handler(except_error, raise_error, handler_func, err_message):
     def wrapper(method):
         @functools.wraps(method)
         def _impl(self, *args, **kwargs):
             try:
                 return method(self, *args, **kwargs)
-            except SQLAlchemyError as err:
-                logger.error(f"{err_label} : {err}")
-                self.session.rollback()
-                raise err_class(err)
+            except except_error as err:
+                handler_func(self, message=f"{err_message} - {err}")
+                raise raise_error(err)
 
         return _impl
 

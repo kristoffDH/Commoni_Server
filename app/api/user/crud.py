@@ -3,7 +3,7 @@ from sqlalchemy.exc import SQLAlchemyError
 
 from app.api.user.model import User
 from app.api.user.schema import UserGet, UserCreate
-from app.api.exception.handler import alchemy_error_handler
+from app.api.exception.handler import error_handler
 from app.common import dictionary_util
 from app.configs.log import logger
 
@@ -24,7 +24,14 @@ class UserCRUD:
         """
         self.session = session
 
-    @alchemy_error_handler(err_label="Crud Create error", err_class=UserCrudError)
+    def crud_error_handler(self, message: str):
+        self.session.rollback()
+        logger.error(message)
+
+    @error_handler(except_error=SQLAlchemyError,
+                   raise_error=UserCrudError,
+                   handler_func=crud_error_handler,
+                   err_message="UserCRUD create error")
     def create(self, user: UserCreate) -> User:
         """
         User 객체 생성
@@ -37,7 +44,10 @@ class UserCRUD:
 
         return insert_data
 
-    @alchemy_error_handler(err_label="Crud Get error", err_class=UserCrudError)
+    @error_handler(except_error=SQLAlchemyError,
+                   raise_error=UserCrudError,
+                   handler_func=crud_error_handler,
+                   err_message="UserCRUD Get error")
     def get(self, user: UserGet) -> User:
         """
         User 객체를 가져오기
@@ -49,7 +59,10 @@ class UserCRUD:
             .filter(User.id == user.id) \
             .first()
 
-    @alchemy_error_handler(err_label="Crud Update error", err_class=UserCrudError)
+    @error_handler(except_error=SQLAlchemyError,
+                   raise_error=UserCrudError,
+                   handler_func=crud_error_handler,
+                   err_message="UserCRUD Updte error")
     def update(self, update_data: UserGet) -> None:
         """
         User 객체 수정
@@ -66,7 +79,10 @@ class UserCRUD:
         if updated == 0:
             logger.error(f"[User]Update is None. id : {update_data.id}")
 
-    @alchemy_error_handler(err_label="Crud Delete error", err_class=UserCrudError)
+    @error_handler(except_error=SQLAlchemyError,
+                   raise_error=UserCrudError,
+                   handler_func=crud_error_handler,
+                   err_message="UserCRUD Delete error")
     def delete(self, user: UserGet) -> None:
         """
         User 삭제
