@@ -1,28 +1,29 @@
+from typing import Dict, Any
 from fastapi import status
+from starlette.exceptions import HTTPException
 
 
-class ApiErrorBase(Exception):
+class ApiErrorBase(HTTPException):
     """
     API Exception 처리를 위한 베이스 클래스
     Attributes:
         - status : http status code
         - message : 상세 내용
     """
-    status: int
-    message: str
-    headers: dict = None
+    status_code: int = None
+    detail: str = None
+    headers: Dict[str, Any] = None
 
-    def __init__(self, http_status: int, message: str, headers: dict = None):
-        self.http_status = http_status
-        self.message = message
-        self.headers = headers
+    def __init__(self):
+        super().__init__(status_code=self.status_code, detail=self.detail, headers=self.headers)
 
-    def make_content(self) -> dict:
-        """
-        클라이언트로 전달할 응답용 content 생성
-        :return:
-        """
-        return {"message": self.message}
+
+def make_content(self) -> dict:
+    """
+    클라이언트로 전달할 응답용 content 생성
+    :return:
+    """
+    return {"detail": self.detail}
 
 
 class UserNotFound(ApiErrorBase):
@@ -31,8 +32,8 @@ class UserNotFound(ApiErrorBase):
     """
 
     def __init__(self, user_id: str):
-        super().__init__(http_status=status.HTTP_404_NOT_FOUND,
-                         message=f"user[{user_id}] is not existed.")
+        self.status_code = status.HTTP_404_NOT_FOUND
+        self.detail = f"user[{user_id}] is not existed."
 
 
 class AlreadyExistedUser(ApiErrorBase):
@@ -41,8 +42,8 @@ class AlreadyExistedUser(ApiErrorBase):
     """
 
     def __init__(self, user_id: str):
-        super().__init__(http_status=status.HTTP_409_CONFLICT,
-                         message=f"{user_id} is already existed.")
+        self.status_code = status.HTTP_409_CONFLICT
+        self.detail = f"{user_id} is already existed."
 
 
 class ItemNotFound(ApiErrorBase):
@@ -51,8 +52,8 @@ class ItemNotFound(ApiErrorBase):
     """
 
     def __init__(self):
-        super().__init__(http_status=status.HTTP_404_NOT_FOUND,
-                         message="Item not Found.")
+        self.status_code = status.HTTP_404_NOT_FOUND
+        self.detail = "Item not Found."
 
 
 class Unauthorized(ApiErrorBase):
@@ -60,9 +61,9 @@ class Unauthorized(ApiErrorBase):
     UNAUTHORIZED에 대한 예외 처리 클래스
     """
 
-    def __init__(self, message: str):
-        super().__init__(http_status=status.HTTP_401_UNAUTHORIZED,
-                         message=f"Unauthorized : {message}")
+    def __init__(self, detail: str):
+        self.status_code = status.HTTP_401_UNAUTHORIZED
+        self.detail = f"Unauthorized : {detail}"
 
 
 class CommanageNotFound(ApiErrorBase):
@@ -71,8 +72,8 @@ class CommanageNotFound(ApiErrorBase):
     """
 
     def __init__(self, host_id: int):
-        super().__init__(http_status=status.HTTP_404_NOT_FOUND,
-                         message=f"ComManage[{host_id}] is not existed.")
+        self.status_code = status.HTTP_404_NOT_FOUND
+        self.detail = f"ComManage[{host_id}] is not existed."
 
 
 class ServerError(ApiErrorBase):
@@ -80,9 +81,9 @@ class ServerError(ApiErrorBase):
     서버 내에서 오류가 발생 했을 때 처리할 예외 클래스
     """
 
-    def __init__(self, err_message: str):
-        super().__init__(http_status=status.HTTP_500_INTERNAL_SERVER_ERROR,
-                         message=f"Server error. Internal err code : {err_message}")
+    def __init__(self, err_detail: str):
+        self.status_code = status.HTTP_500_INTERNAL_SERVER_ERROR
+        self.detail = f"Server error. Internal err code : {err_detail}"
 
 
 class TokenInvalidate(ApiErrorBase):
@@ -90,7 +91,7 @@ class TokenInvalidate(ApiErrorBase):
     token validate credentials 예외처리 클래스
     """
 
-    def __init__(self, err_message: str):
-        super().__init__(http_status=status.HTTP_401_UNAUTHORIZED,
-                         message=f"toekn invalidate : {err_message}",
-                         headers={"WWW-Authenticate": "Bearer"})
+    def __init__(self, err_detail: str):
+        self.status_code = status.HTTP_401_UNAUTHORIZED
+        self.detail = f"toekn invalidate : {err_detail}"
+        self.headers = {"WWW-Authenticate": "Bearer"}
